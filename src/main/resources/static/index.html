@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Car Your Way - PoC Chat Support</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #111827;
+            --line: #334155;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #3b82f6;
+        }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 16px;
+        }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            padding: 10px 12px;
+            background: #0b1220;
+            color: var(--text);
+        }
+        button {
+            cursor: pointer;
+            background: var(--accent);
+            border: none;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+        .messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 440px;
+            max-height: 440px;
+            overflow-y: auto;
+        }
+        .message {
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #0b1220;
+        }
+        .meta {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .system {
+            border-left: 4px solid #f59e0b;
+        }
+        .customer {
+            border-left: 4px solid #22c55e;
+        }
+        .agent {
+            border-left: 4px solid #60a5fa;
+        }
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .toolbar button {
+            margin-top: 0;
+        }
+        .hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Your Car Your Way — PoC chat support</h1>
+
+    <div class="layout">
+        <section class="panel">
+            <h2>Connexion</h2>
+            <label for="conversationId">Conversation ID</label>
+            <input id="conversationId" placeholder="Créer ou saisir une conversation" />
+
+            <div class="toolbar">
+                <button id="createConversationBtn">Créer</button>
+                <button id="loadHistoryBtn" type="button">Historique</button>
+            </div>
+
+            <label for="authorName">Nom affiché</label>
+            <input id="authorName" value="Client démo" />
+
+            <label for="authorRole">Rôle</label>
+            <select id="authorRole">
+                <option value="CUSTOMER">Client</option>
+                <option value="AGENT">Agent</option>
+            </select>
+
+            <button id="connectBtn" type="button">Se connecter</button>
+            <p class="hint">Le backend expose un endpoint STOMP SockJS sur <code>/ws/support</code>.</p>
+        </section>
+
+        <section class="panel">
+            <h2>Conversation</h2>
+            <div id="messages" class="messages"></div>
+
+            <label for="content">Message</label>
+            <textarea id="content" rows="4" placeholder="Écrire un message..."></textarea>
+            <button id="sendBtn" type="button">Envoyer</button>
+        </section>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+<script>
+    const conversationIdInput = document.getElementById("conversationId");
+    const authorNameInput = document.getElementById("authorName");
+    const authorRoleInput = document.getElementById("authorRole");
+    const contentInput = document.getElementById("content");
+    const messagesContainer = document.getElementById("messages");
+
+    let stompClient = null;
+    let currentConversationId = null;
+
+    function appendMessage(message) {
+        const box = document.createElement("div");
+        const role = String(message.authorRole || "SYSTEM").toLowerCase();
+        box.className = "message " + (role === "customer" ? "customer" : role === "agent" ? "agent" : "system");
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${message.authorName} • ${new Date(message.createdAt).toLocaleString()}`;
+
+        const body = document.createElement("div");
+        body.textContent = message.content;
+
+        box.appendChild(meta);
+        box.appendChild(body);
+        messagesContainer.appendChild(box);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    async function createConversation() {
+        const response = await fetch("/api/v1/support/conversations", { method: "POST" });
+        const payload = await response.json();
+        conversationIdInput.value = payload.conversationId;
+    }
+
+    async function loadHistory() {
+        const conversationId = conversationIdInput.value.trim();
+        if (!conversationId) {
+            alert("Conversation ID obligatoire.");
+            return;
+        }
+        const response = await fetch(`/api/v1/support/conversations/${conversationId}/messages`);
+        const payload = await response.json();
+        messagesContainer.innerHTML = "";
+        payload.forEach(appendMessage);
+    }
+
+    function connect() {
+        const conversationId = conversationIdInput.value.trim();
+        const authorName = authorNameInput.value.trim();
+        const authorRole = authorRoleInput.value;
+
+        if (!conversationId || !authorName) {
+            alert("Conversation ID et nom obligatoires.");
+            return;
+        }
+
+        currentConversationId = conversationId;
+
+        if (stompClient && stompClient.connected) {
+            stompClient.deactivate();
+        }
+
+        stompClient = new StompJs.Client({
+            webSocketFactory: () => new SockJS("/ws/support"),
+            reconnectDelay: 3000,
+            onConnect: () => {
+                stompClient.subscribe(`/topic/support/${conversationId}`, frame => {
+                    appendMessage(JSON.parse(frame.body));
+                });
+
+                stompClient.publish({
+                    destination: "/app/support.join",
+                    body: JSON.stringify({
+                        conversationId,
+                        authorRole,
+                        authorName
+                    })
+                });
+            }
+        });
+
+        stompClient.activate();
+    }
+
+    function sendMessage() {
+        if (!stompClient || !stompClient.connected || !currentConversationId) {
+            alert("Connectez-vous d'abord.");
+            return;
+        }
+
+        const content = contentInput.value.trim();
+        if (!content) {
+            return;
+        }
+
+        stompClient.publish({
+            destination: "/app/support.send",
+            body: JSON.stringify({
+                conversationId: currentConversationId,
+                authorRole: authorRoleInput.value,
+                authorName: authorNameInput.value.trim(),
+                content
+            })
+        });
+
+        contentInput.value = "";
+        contentInput.focus();
+    }
+
+    document.getElementById("createConversationBtn").addEventListener("click", createConversation);
+    document.getElementById("loadHistoryBtn").addEventListener("click", loadHistory);
+    document.getElementById("connectBtn").addEventListener("click", connect);
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+</script>
+</body>
+</html>

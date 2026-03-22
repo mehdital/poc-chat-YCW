@@ -1,0 +1,11 @@
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\config\WebSocketConfig.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\controller\SupportChatController.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\controller\SupportConversationQueryController.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\dto\CreateConversationResponse.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\dto\JoinConversationCommand.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\dto\SendChatMessageCommand.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\model\AuthorRole.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\model\SupportMessage.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\model\SupportMessageType.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\service\SupportChatService.java
+C:\Users\ordi\Desktop\projet 13\Titre_du_projet_nom_prenom\ycw-chat-poc-java\chat-poc-java\poc-chat-YCW\src\main\java\com\yourcaryourway\chatpoc\YcwChatPocApplication.java

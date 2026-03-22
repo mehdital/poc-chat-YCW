@@ -1,0 +1,11 @@
+com\yourcaryourway\chatpoc\model\SupportMessageType.class
+com\yourcaryourway\chatpoc\dto\CreateConversationResponse.class
+com\yourcaryourway\chatpoc\YcwChatPocApplication.class
+com\yourcaryourway\chatpoc\dto\JoinConversationCommand.class
+com\yourcaryourway\chatpoc\controller\SupportChatController.class
+com\yourcaryourway\chatpoc\model\SupportMessage.class
+com\yourcaryourway\chatpoc\service\SupportChatService.class
+com\yourcaryourway\chatpoc\config\WebSocketConfig.class
+com\yourcaryourway\chatpoc\controller\SupportConversationQueryController.class
+com\yourcaryourway\chatpoc\dto\SendChatMessageCommand.class
+com\yourcaryourway\chatpoc\model\AuthorRole.class
